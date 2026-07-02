@@ -155,17 +155,26 @@ string buildCodingPrompt(const string& language, const string& problemType, cons
         + " code, describe the time and space complexity, and include test cases with expected output.";
 }
 
+string buildBusinessPrompt(const string& task, const string& audience, const string& goal) {
+    return "Act as a professional business consultant. Create a high-quality " + task
+        + " for the following goal: " + goal + ". The target audience is " + audience
+        + ". Use a clear business tone, organize the response with headings, include practical recommendations, "
+          "and make the final output suitable for a university or workplace presentation.";
+}
+
+string buildTranslationPrompt(const string& sourceLanguage, const string& targetLanguage,
+                              const string& tone, const string& textToTranslate) {
+    return "Act as a professional translator. Translate the following text from " + sourceLanguage
+        + " to " + targetLanguage + " using a " + tone
+        + " tone. Preserve the original meaning, improve natural fluency, and provide a short note explaining any cultural or wording choices.\n\nText: "
+        + textToTranslate;
+}
+
 void studyAssistant(vector<string>& promptHistory) {
     printHeader("Study Assistant");
-
     string subject = getRequiredText("Enter subject or topic: ");
-    string difficulty = chooseFromList("Choose difficulty level: ", {
-        "Beginner",
-        "Intermediate",
-        "Advanced"
-    });
+    string difficulty = chooseFromList("Choose difficulty level: ", {"Beginner", "Intermediate", "Advanced"});
     string learningStyle = getRequiredText("Enter preferred learning style: ");
-
     string prompt = buildStudyPrompt(subject, difficulty, learningStyle);
     displayGeneratedPrompt(prompt);
     addPromptToHistory(promptHistory, "Study Assistant", prompt);
@@ -174,17 +183,57 @@ void studyAssistant(vector<string>& promptHistory) {
 
 void codingAssistant(vector<string>& promptHistory) {
     printHeader("Coding Assistant");
-
     string programmingLanguage = getRequiredText("Enter programming language: ");
     string problemType = getRequiredText("Enter problem type: ");
-    string level = chooseFromList("Choose user level: ", {
-        "Beginner",
-        "Advanced"
-    });
-
+    string level = chooseFromList("Choose user level: ", {"Beginner", "Advanced"});
     string prompt = buildCodingPrompt(programmingLanguage, problemType, level);
     displayGeneratedPrompt(prompt);
     addPromptToHistory(promptHistory, "Coding Assistant", prompt);
+    pauseProgram();
+}
+
+void businessAssistant(vector<string>& promptHistory) {
+    printHeader("Business Assistant");
+    string businessTask = chooseFromList("Choose business task: ", {
+        "Marketing Plan",
+        "Business Proposal",
+        "Presentation Outline",
+        "SWOT Analysis",
+        "Meeting Agenda",
+        "Custom Business Task"
+    });
+
+    if (businessTask == "Custom Business Task") {
+        businessTask = getRequiredText("Enter custom business task: ");
+    }
+
+    string audience = getRequiredText("Enter target audience: ");
+    string goal = getRequiredText("Enter main business goal: ");
+    string prompt = buildBusinessPrompt(businessTask, audience, goal);
+    displayGeneratedPrompt(prompt);
+    addPromptToHistory(promptHistory, "Business Assistant", prompt);
+    pauseProgram();
+}
+
+void translationAssistant(vector<string>& promptHistory) {
+    printHeader("Translation Assistant");
+    vector<string> languages = {"English", "Malay", "Chinese", "Japanese"};
+    string sourceLanguage = chooseFromList("Choose source language: ", languages);
+    string targetLanguage;
+
+    while (true) {
+        targetLanguage = chooseFromList("Choose target language: ", languages);
+        if (toLowerCase(sourceLanguage) != toLowerCase(targetLanguage)) {
+            break;
+        }
+        cout << "Source and target languages must be different.\n";
+    }
+
+    string tone = getRequiredText("Enter desired tone: ");
+    string textToTranslate = getRequiredText("Enter text to translate: ");
+    string prompt = buildTranslationPrompt(sourceLanguage, targetLanguage, tone, textToTranslate);
+    displayGeneratedPrompt(prompt);
+    addPromptToHistory(promptHistory, "Translation Assistant", prompt);
     pauseProgram();
 }
 
@@ -207,8 +256,10 @@ void displayMainMenu() {
     printHeader(APPLICATION_NAME);
     cout << "1. Study Assistant\n";
     cout << "2. Coding Assistant\n";
-    cout << "3. Prompt History\n";
-    cout << "4. Exit\n";
+    cout << "3. Business Assistant\n";
+    cout << "4. Translation Assistant\n";
+    cout << "5. Prompt History\n";
+    cout << "6. Exit\n";
     printBorder('-');
 }
 
@@ -218,7 +269,7 @@ int main() {
 
     while (isRunning) {
         displayMainMenu();
-        int menuChoice = getValidatedInteger("Enter your choice: ", 1, 4);
+        int menuChoice = getValidatedInteger("Enter your choice: ", 1, 6);
 
         switch (menuChoice) {
             case 1:
@@ -228,10 +279,16 @@ int main() {
                 codingAssistant(promptHistory);
                 break;
             case 3:
+                businessAssistant(promptHistory);
+                break;
+            case 4:
+                translationAssistant(promptHistory);
+                break;
+            case 5:
                 viewPromptHistory(promptHistory);
                 pauseProgram();
                 break;
-            case 4:
+            case 6:
                 printHeader("Goodbye");
                 cout << "Thank you for using " << APPLICATION_NAME << ".\n";
                 isRunning = false;
