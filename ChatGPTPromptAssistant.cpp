@@ -267,6 +267,46 @@ void emailAssistant(vector<string>& promptHistory) {
     pauseProgram();
 }
 
+string improveWeakPrompt(const string& weakPrompt) {
+    return "Act as an expert ChatGPT assistant. Please respond to the following request in a clear, accurate, and structured way: \""
+        + weakPrompt
+        + "\". Ask clarifying questions if important details are missing, use headings or bullet points where helpful, provide practical examples, and finish with a concise summary or recommendation.";
+}
+
+void promptImprovementTool(vector<string>& promptHistory) {
+    printHeader("Prompt Improvement Tool");
+    string weakPrompt = getRequiredText("Enter your weak or basic prompt: ");
+    string improvedPrompt = improveWeakPrompt(weakPrompt);
+    displayGeneratedPrompt(improvedPrompt);
+    addPromptToHistory(promptHistory, "Prompt Improvement Tool", improvedPrompt);
+    pauseProgram();
+}
+
+void helpAboutChatGPT() {
+    printHeader("Help / About ChatGPT");
+    cout << "Program: " << APPLICATION_NAME << '\n';
+    cout << "Prepared by: " << AUTHOR_NAME << '\n';
+    cout << "Email: " << AUTHOR_EMAIL << "\n\n";
+
+    cout << "ChatGPT is an AI chatbot that can understand natural language and generate\n";
+    cout << "human-like responses for learning, coding, business, writing, translation,\n";
+    cout << "career preparation, and communication tasks.\n\n";
+
+    cout << "This offline program does not connect to the real ChatGPT service. Instead,\n";
+    cout << "it demonstrates one important reason ChatGPT is disruptive: users can achieve\n";
+    cout << "better results when they give clear roles, context, tasks, constraints, and\n";
+    cout << "output expectations in their prompts.\n\n";
+
+    cout << "Prompt writing tips:\n";
+    cout << "  1. Tell ChatGPT what role to perform.\n";
+    cout << "  2. Give enough background information.\n";
+    cout << "  3. State the exact task clearly.\n";
+    cout << "  4. Specify tone, audience, format, and difficulty.\n";
+    cout << "  5. Ask for examples, checks, or summaries when useful.\n";
+
+    pauseProgram();
+}
+
 void viewPromptHistory(const vector<string>& promptHistory) {
     printSubHeader("Prompt History");
     if (promptHistory.empty()) {
@@ -288,8 +328,10 @@ void displayMainMenu() {
     cout << "5. Creative Writing Assistant\n";
     cout << "6. Resume & CV Assistant\n";
     cout << "7. Email Assistant\n";
-    cout << "8. Prompt History\n";
-    cout << "9. Exit\n";
+    cout << "8. Prompt Improvement Tool\n";
+    cout << "9. Prompt History\n";
+    cout << "10. Help / About ChatGPT\n";
+    cout << "11. Exit\n";
     printBorder('-');
 }
 
@@ -309,8 +351,10 @@ int main() {
             case 5: creativeWritingAssistant(promptHistory); break;
             case 6: resumeAssistant(promptHistory); break;
             case 7: emailAssistant(promptHistory); break;
-            case 8: viewPromptHistory(promptHistory); pauseProgram(); break;
-            case 9:
+            case 8: promptImprovementTool(promptHistory); break;
+            case 9: viewPromptHistory(promptHistory); pauseProgram(); break;
+            case 10: helpAboutChatGPT(); break;
+            case 11:
                 printHeader("Goodbye");
                 cout << "Thank you for using " << APPLICATION_NAME << ".\n";
                 isRunning = false;
