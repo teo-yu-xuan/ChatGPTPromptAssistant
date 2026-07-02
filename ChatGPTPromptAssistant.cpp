@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cctype>
 #include <iostream>
 #include <sstream>
@@ -19,6 +20,13 @@ string trim(const string& text) {
 
     size_t end = text.find_last_not_of(" \t\r\n");
     return text.substr(start, end - start + 1);
+}
+
+string toLowerCase(string text) {
+    transform(text.begin(), text.end(), text.begin(), [](unsigned char character) {
+        return static_cast<char>(tolower(character));
+    });
+    return text;
 }
 
 void printBorder(char borderCharacter = '=') {
@@ -112,15 +120,72 @@ string getRequiredText(const string& prompt) {
     }
 }
 
+string chooseFromList(const string& prompt, const vector<string>& options) {
+    for (size_t index = 0; index < options.size(); ++index) {
+        cout << "  " << index + 1 << ". " << options[index] << '\n';
+    }
+
+    int choice = getValidatedInteger(prompt, 1, static_cast<int>(options.size()));
+    return options[choice - 1];
+}
+
 void displayGeneratedPrompt(const string& prompt) {
     printSubHeader("Generated ChatGPT Prompt");
-    cout << prompt << '\n';
+    cout << prompt << "\n";
     printBorder('-');
 }
 
 void addPromptToHistory(vector<string>& promptHistory, const string& category, const string& prompt) {
     string storedPrompt = "[" + category + "]\n" + prompt;
     promptHistory.push_back(storedPrompt);
+}
+
+string buildStudyPrompt(const string& subject, const string& difficulty, const string& learningStyle) {
+    return "Act as an expert " + subject + " tutor. Explain the topic at a "
+        + toLowerCase(difficulty) + " level using a " + learningStyle
+        + " learning style. Break the lesson into clear sections, define important terms, "
+          "give practical examples, ask three checkpoint questions, and finish with a short revision summary.";
+}
+
+string buildCodingPrompt(const string& language, const string& problemType, const string& level) {
+    return "Act as a professional " + language
+        + " programming mentor for a learner at the " + toLowerCase(level)
+        + " level. Help me solve this type of problem: " + problemType
+        + ". Explain the approach first, provide clean and well-commented " + language
+        + " code, describe the time and space complexity, and include test cases with expected output.";
+}
+
+void studyAssistant(vector<string>& promptHistory) {
+    printHeader("Study Assistant");
+
+    string subject = getRequiredText("Enter subject or topic: ");
+    string difficulty = chooseFromList("Choose difficulty level: ", {
+        "Beginner",
+        "Intermediate",
+        "Advanced"
+    });
+    string learningStyle = getRequiredText("Enter preferred learning style: ");
+
+    string prompt = buildStudyPrompt(subject, difficulty, learningStyle);
+    displayGeneratedPrompt(prompt);
+    addPromptToHistory(promptHistory, "Study Assistant", prompt);
+    pauseProgram();
+}
+
+void codingAssistant(vector<string>& promptHistory) {
+    printHeader("Coding Assistant");
+
+    string programmingLanguage = getRequiredText("Enter programming language: ");
+    string problemType = getRequiredText("Enter problem type: ");
+    string level = chooseFromList("Choose user level: ", {
+        "Beginner",
+        "Advanced"
+    });
+
+    string prompt = buildCodingPrompt(programmingLanguage, problemType, level);
+    displayGeneratedPrompt(prompt);
+    addPromptToHistory(promptHistory, "Coding Assistant", prompt);
+    pauseProgram();
 }
 
 void viewPromptHistory(const vector<string>& promptHistory) {
@@ -138,23 +203,12 @@ void viewPromptHistory(const vector<string>& promptHistory) {
     }
 }
 
-void demoPromptGenerator(vector<string>& promptHistory) {
-    printHeader("Prompt Generator Demo");
-    string topic = getRequiredText("Enter a topic: ");
-
-    string prompt = "Act as a helpful ChatGPT assistant. Explain " + topic
-        + " clearly using examples and a short summary.";
-
-    displayGeneratedPrompt(prompt);
-    addPromptToHistory(promptHistory, "Demo Prompt", prompt);
-    pauseProgram();
-}
-
 void displayMainMenu() {
     printHeader(APPLICATION_NAME);
-    cout << "1. Generate Demo Prompt\n";
-    cout << "2. View Prompt History\n";
-    cout << "3. Exit\n";
+    cout << "1. Study Assistant\n";
+    cout << "2. Coding Assistant\n";
+    cout << "3. Prompt History\n";
+    cout << "4. Exit\n";
     printBorder('-');
 }
 
@@ -164,17 +218,20 @@ int main() {
 
     while (isRunning) {
         displayMainMenu();
-        int menuChoice = getValidatedInteger("Enter your choice: ", 1, 3);
+        int menuChoice = getValidatedInteger("Enter your choice: ", 1, 4);
 
         switch (menuChoice) {
             case 1:
-                demoPromptGenerator(promptHistory);
+                studyAssistant(promptHistory);
                 break;
             case 2:
+                codingAssistant(promptHistory);
+                break;
+            case 3:
                 viewPromptHistory(promptHistory);
                 pauseProgram();
                 break;
-            case 3:
+            case 4:
                 printHeader("Goodbye");
                 cout << "Thank you for using " << APPLICATION_NAME << ".\n";
                 isRunning = false;
