@@ -309,13 +309,83 @@ void helpAboutChatGPT() {
 
 void viewPromptHistory(const vector<string>& promptHistory) {
     printSubHeader("Prompt History");
+
     if (promptHistory.empty()) {
         cout << "No prompts have been generated yet.\n";
         return;
     }
+
     for (size_t index = 0; index < promptHistory.size(); ++index) {
-        cout << "\nPrompt " << index + 1 << ":\n" << promptHistory[index] << "\n";
+        cout << "\nPrompt " << index + 1 << ":\n";
+        cout << promptHistory[index] << "\n";
         printBorder('.');
+    }
+}
+
+void deleteSinglePrompt(vector<string>& promptHistory) {
+    if (promptHistory.empty()) {
+        cout << "History is empty. There is nothing to delete.\n";
+        return;
+    }
+
+    viewPromptHistory(promptHistory);
+    int promptNumber = getValidatedInteger(
+        "\nEnter the prompt number to delete: ",
+        1,
+        static_cast<int>(promptHistory.size())
+    );
+
+    promptHistory.erase(promptHistory.begin() + promptNumber - 1);
+    cout << "Prompt " << promptNumber << " deleted successfully.\n";
+}
+
+void clearPromptHistory(vector<string>& promptHistory) {
+    if (promptHistory.empty()) {
+        cout << "History is already empty.\n";
+        return;
+    }
+
+    cout << "This will delete all saved prompts in the current session.\n";
+    int confirmation = getValidatedInteger("Enter 1 to confirm or 2 to cancel: ", 1, 2);
+
+    if (confirmation == 1) {
+        promptHistory.clear();
+        cout << "All prompt history cleared successfully.\n";
+    } else {
+        cout << "Clear history cancelled.\n";
+    }
+}
+
+void promptHistoryMenu(vector<string>& promptHistory) {
+    bool returnToMainMenu = false;
+
+    while (!returnToMainMenu) {
+        printHeader("Prompt History");
+        cout << "1. View History\n";
+        cout << "2. Delete One Prompt\n";
+        cout << "3. Clear All History\n";
+        cout << "4. Return to Main Menu\n";
+        printBorder('-');
+
+        int choice = getValidatedInteger("Enter your choice: ", 1, 4);
+
+        switch (choice) {
+            case 1:
+                viewPromptHistory(promptHistory);
+                pauseProgram();
+                break;
+            case 2:
+                deleteSinglePrompt(promptHistory);
+                pauseProgram();
+                break;
+            case 3:
+                clearPromptHistory(promptHistory);
+                pauseProgram();
+                break;
+            case 4:
+                returnToMainMenu = true;
+                break;
+        }
     }
 }
 
@@ -352,7 +422,9 @@ int main() {
             case 6: resumeAssistant(promptHistory); break;
             case 7: emailAssistant(promptHistory); break;
             case 8: promptImprovementTool(promptHistory); break;
-            case 9: viewPromptHistory(promptHistory); pauseProgram(); break;
+            case 9:
+                promptHistoryMenu(promptHistory);
+                break;
             case 10: helpAboutChatGPT(); break;
             case 11:
                 printHeader("Goodbye");
