@@ -2,6 +2,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -39,6 +40,13 @@ void printHeader(const string& title) {
     printBorder('=');
     printCenteredLine(title);
     printBorder('=');
+}
+
+void printSubHeader(const string& title) {
+    cout << '\n';
+    printBorder('-');
+    cout << title << '\n';
+    printBorder('-');
 }
 
 void pauseProgram() {
@@ -104,40 +112,69 @@ string getRequiredText(const string& prompt) {
     }
 }
 
+void displayGeneratedPrompt(const string& prompt) {
+    printSubHeader("Generated ChatGPT Prompt");
+    cout << prompt << '\n';
+    printBorder('-');
+}
+
+void addPromptToHistory(vector<string>& promptHistory, const string& category, const string& prompt) {
+    string storedPrompt = "[" + category + "]\n" + prompt;
+    promptHistory.push_back(storedPrompt);
+}
+
+void viewPromptHistory(const vector<string>& promptHistory) {
+    printSubHeader("Prompt History");
+
+    if (promptHistory.empty()) {
+        cout << "No prompts have been generated yet.\n";
+        return;
+    }
+
+    for (size_t index = 0; index < promptHistory.size(); ++index) {
+        cout << "\nPrompt " << index + 1 << ":\n";
+        cout << promptHistory[index] << "\n";
+        printBorder('.');
+    }
+}
+
+void demoPromptGenerator(vector<string>& promptHistory) {
+    printHeader("Prompt Generator Demo");
+    string topic = getRequiredText("Enter a topic: ");
+
+    string prompt = "Act as a helpful ChatGPT assistant. Explain " + topic
+        + " clearly using examples and a short summary.";
+
+    displayGeneratedPrompt(prompt);
+    addPromptToHistory(promptHistory, "Demo Prompt", prompt);
+    pauseProgram();
+}
+
 void displayMainMenu() {
     printHeader(APPLICATION_NAME);
-    cout << "1. Study Assistant\n";
-    cout << "2. Coding Assistant\n";
-    cout << "3. Help / About ChatGPT\n";
-    cout << "4. Exit\n";
+    cout << "1. Generate Demo Prompt\n";
+    cout << "2. View Prompt History\n";
+    cout << "3. Exit\n";
     printBorder('-');
 }
 
 int main() {
+    vector<string> promptHistory;
     bool isRunning = true;
 
     while (isRunning) {
         displayMainMenu();
-        int menuChoice = getValidatedInteger("Enter your choice: ", 1, 4);
+        int menuChoice = getValidatedInteger("Enter your choice: ", 1, 3);
 
         switch (menuChoice) {
             case 1:
-                printHeader("Study Assistant");
-                cout << "Study Assistant will be added in a later commit.\n";
-                pauseProgram();
+                demoPromptGenerator(promptHistory);
                 break;
             case 2:
-                printHeader("Coding Assistant");
-                cout << "Coding Assistant will be added in a later commit.\n";
+                viewPromptHistory(promptHistory);
                 pauseProgram();
                 break;
             case 3:
-                printHeader("Help / About ChatGPT");
-                cout << "Prepared by: " << AUTHOR_NAME << '\n';
-                cout << "Email: " << AUTHOR_EMAIL << '\n';
-                pauseProgram();
-                break;
-            case 4:
                 printHeader("Goodbye");
                 cout << "Thank you for using " << APPLICATION_NAME << ".\n";
                 isRunning = false;
