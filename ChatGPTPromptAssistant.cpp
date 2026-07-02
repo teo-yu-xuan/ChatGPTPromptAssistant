@@ -17,7 +17,6 @@ string trim(const string& text) {
     if (start == string::npos) {
         return "";
     }
-
     size_t end = text.find_last_not_of(" \t\r\n");
     return text.substr(start, end - start + 1);
 }
@@ -39,7 +38,6 @@ void printCenteredLine(const string& text) {
     if (padding < 0) {
         padding = 0;
     }
-
     cout << string(padding, ' ') << text << '\n';
 }
 
@@ -67,7 +65,6 @@ bool isInteger(const string& text) {
     if (text.empty()) {
         return false;
     }
-
     for (char character : text) {
         if (!isdigit(static_cast<unsigned char>(character))) {
             return false;
@@ -78,7 +75,6 @@ bool isInteger(const string& text) {
 
 int getValidatedInteger(const string& prompt, int minimumValue, int maximumValue) {
     string input;
-
     while (true) {
         cout << prompt;
         getline(cin, input);
@@ -98,14 +94,12 @@ int getValidatedInteger(const string& prompt, int minimumValue, int maximumValue
                  << minimumValue << " to " << maximumValue << ".\n";
             continue;
         }
-
         return value;
     }
 }
 
 string getRequiredText(const string& prompt) {
     string input;
-
     while (true) {
         cout << prompt;
         getline(cin, input);
@@ -115,7 +109,6 @@ string getRequiredText(const string& prompt) {
             cout << "This field cannot be empty. Please try again.\n";
             continue;
         }
-
         return input;
     }
 }
@@ -124,7 +117,6 @@ string chooseFromList(const string& prompt, const vector<string>& options) {
     for (size_t index = 0; index < options.size(); ++index) {
         cout << "  " << index + 1 << ". " << options[index] << '\n';
     }
-
     int choice = getValidatedInteger(prompt, 1, static_cast<int>(options.size()));
     return options[choice - 1];
 }
@@ -136,38 +128,54 @@ void displayGeneratedPrompt(const string& prompt) {
 }
 
 void addPromptToHistory(vector<string>& promptHistory, const string& category, const string& prompt) {
-    string storedPrompt = "[" + category + "]\n" + prompt;
-    promptHistory.push_back(storedPrompt);
+    promptHistory.push_back("[" + category + "]\n" + prompt);
 }
 
 string buildStudyPrompt(const string& subject, const string& difficulty, const string& learningStyle) {
     return "Act as an expert " + subject + " tutor. Explain the topic at a "
         + toLowerCase(difficulty) + " level using a " + learningStyle
-        + " learning style. Break the lesson into clear sections, define important terms, "
-          "give practical examples, ask three checkpoint questions, and finish with a short revision summary.";
+        + " learning style. Break the lesson into clear sections, define important terms, give practical examples, ask three checkpoint questions, and finish with a short revision summary.";
 }
 
 string buildCodingPrompt(const string& language, const string& problemType, const string& level) {
-    return "Act as a professional " + language
-        + " programming mentor for a learner at the " + toLowerCase(level)
-        + " level. Help me solve this type of problem: " + problemType
-        + ". Explain the approach first, provide clean and well-commented " + language
-        + " code, describe the time and space complexity, and include test cases with expected output.";
+    return "Act as a professional " + language + " programming mentor for a learner at the "
+        + toLowerCase(level) + " level. Help me solve this type of problem: " + problemType
+        + ". Explain the approach first, provide clean and well-commented code, describe complexity, and include test cases.";
 }
 
 string buildBusinessPrompt(const string& task, const string& audience, const string& goal) {
     return "Act as a professional business consultant. Create a high-quality " + task
-        + " for the following goal: " + goal + ". The target audience is " + audience
-        + ". Use a clear business tone, organize the response with headings, include practical recommendations, "
-          "and make the final output suitable for a university or workplace presentation.";
+        + " for this goal: " + goal + ". The target audience is " + audience
+        + ". Use headings, recommendations, and a workplace-ready tone.";
 }
 
 string buildTranslationPrompt(const string& sourceLanguage, const string& targetLanguage,
                               const string& tone, const string& textToTranslate) {
     return "Act as a professional translator. Translate the following text from " + sourceLanguage
         + " to " + targetLanguage + " using a " + tone
-        + " tone. Preserve the original meaning, improve natural fluency, and provide a short note explaining any cultural or wording choices.\n\nText: "
-        + textToTranslate;
+        + " tone. Preserve meaning and natural fluency.\n\nText: " + textToTranslate;
+}
+
+string buildCreativeWritingPrompt(const string& writingType, const string& topic,
+                                  const string& audience, const string& tone) {
+    return "Act as a creative writing coach. Write a " + writingType + " about " + topic
+        + " for " + audience + ". Use a " + tone
+        + " tone, include a strong opening, and make the writing engaging and original.";
+}
+
+string buildResumePrompt(const string& documentType, const string& targetRole,
+                         const string& experience, const string& strengths) {
+    return "Act as a professional career coach. Create a strong " + documentType
+        + " for a candidate applying for " + targetRole + ". Candidate background: "
+        + experience + ". Key strengths: " + strengths
+        + ". Use action verbs and a confident professional tone.";
+}
+
+string buildEmailPrompt(const string& emailType, const string& recipient,
+                        const string& purpose, const string& tone) {
+    return "Act as a professional communication assistant. Write a " + emailType
+        + " email to " + recipient + " about " + purpose
+        + ". Use a " + tone + " tone, include a subject line, clear body, polite closing, and next step.";
 }
 
 void studyAssistant(vector<string>& promptHistory) {
@@ -183,10 +191,10 @@ void studyAssistant(vector<string>& promptHistory) {
 
 void codingAssistant(vector<string>& promptHistory) {
     printHeader("Coding Assistant");
-    string programmingLanguage = getRequiredText("Enter programming language: ");
+    string language = getRequiredText("Enter programming language: ");
     string problemType = getRequiredText("Enter problem type: ");
     string level = chooseFromList("Choose user level: ", {"Beginner", "Advanced"});
-    string prompt = buildCodingPrompt(programmingLanguage, problemType, level);
+    string prompt = buildCodingPrompt(language, problemType, level);
     displayGeneratedPrompt(prompt);
     addPromptToHistory(promptHistory, "Coding Assistant", prompt);
     pauseProgram();
@@ -194,22 +202,10 @@ void codingAssistant(vector<string>& promptHistory) {
 
 void businessAssistant(vector<string>& promptHistory) {
     printHeader("Business Assistant");
-    string businessTask = chooseFromList("Choose business task: ", {
-        "Marketing Plan",
-        "Business Proposal",
-        "Presentation Outline",
-        "SWOT Analysis",
-        "Meeting Agenda",
-        "Custom Business Task"
-    });
-
-    if (businessTask == "Custom Business Task") {
-        businessTask = getRequiredText("Enter custom business task: ");
-    }
-
+    string task = chooseFromList("Choose business task: ", {"Marketing Plan", "Business Proposal", "Presentation Outline", "SWOT Analysis", "Meeting Agenda"});
     string audience = getRequiredText("Enter target audience: ");
     string goal = getRequiredText("Enter main business goal: ");
-    string prompt = buildBusinessPrompt(businessTask, audience, goal);
+    string prompt = buildBusinessPrompt(task, audience, goal);
     displayGeneratedPrompt(prompt);
     addPromptToHistory(promptHistory, "Business Assistant", prompt);
     pauseProgram();
@@ -220,7 +216,6 @@ void translationAssistant(vector<string>& promptHistory) {
     vector<string> languages = {"English", "Malay", "Chinese", "Japanese"};
     string sourceLanguage = chooseFromList("Choose source language: ", languages);
     string targetLanguage;
-
     while (true) {
         targetLanguage = chooseFromList("Choose target language: ", languages);
         if (toLowerCase(sourceLanguage) != toLowerCase(targetLanguage)) {
@@ -228,26 +223,58 @@ void translationAssistant(vector<string>& promptHistory) {
         }
         cout << "Source and target languages must be different.\n";
     }
-
     string tone = getRequiredText("Enter desired tone: ");
-    string textToTranslate = getRequiredText("Enter text to translate: ");
-    string prompt = buildTranslationPrompt(sourceLanguage, targetLanguage, tone, textToTranslate);
+    string text = getRequiredText("Enter text to translate: ");
+    string prompt = buildTranslationPrompt(sourceLanguage, targetLanguage, tone, text);
     displayGeneratedPrompt(prompt);
     addPromptToHistory(promptHistory, "Translation Assistant", prompt);
     pauseProgram();
 }
 
+void creativeWritingAssistant(vector<string>& promptHistory) {
+    printHeader("Creative Writing Assistant");
+    string writingType = chooseFromList("Choose writing type: ", {"Story", "Essay", "Speech", "Poem", "Social Media Post"});
+    string topic = getRequiredText("Enter topic or theme: ");
+    string audience = getRequiredText("Enter target audience: ");
+    string tone = getRequiredText("Enter desired tone or style: ");
+    string prompt = buildCreativeWritingPrompt(writingType, topic, audience, tone);
+    displayGeneratedPrompt(prompt);
+    addPromptToHistory(promptHistory, "Creative Writing Assistant", prompt);
+    pauseProgram();
+}
+
+void resumeAssistant(vector<string>& promptHistory) {
+    printHeader("Resume & CV Assistant");
+    string documentType = chooseFromList("Choose document type: ", {"Resume", "Cover Letter", "LinkedIn Summary"});
+    string targetRole = getRequiredText("Enter target job role or industry: ");
+    string experience = getRequiredText("Enter education, experience, or background: ");
+    string strengths = getRequiredText("Enter key skills or achievements: ");
+    string prompt = buildResumePrompt(documentType, targetRole, experience, strengths);
+    displayGeneratedPrompt(prompt);
+    addPromptToHistory(promptHistory, "Resume & CV Assistant", prompt);
+    pauseProgram();
+}
+
+void emailAssistant(vector<string>& promptHistory) {
+    printHeader("Email Assistant");
+    string emailType = chooseFromList("Choose email type: ", {"Formal", "Professional", "Customer Support", "Complaint", "Follow-up"});
+    string recipient = getRequiredText("Enter recipient: ");
+    string purpose = getRequiredText("Enter email purpose: ");
+    string tone = getRequiredText("Enter desired tone: ");
+    string prompt = buildEmailPrompt(emailType, recipient, purpose, tone);
+    displayGeneratedPrompt(prompt);
+    addPromptToHistory(promptHistory, "Email Assistant", prompt);
+    pauseProgram();
+}
+
 void viewPromptHistory(const vector<string>& promptHistory) {
     printSubHeader("Prompt History");
-
     if (promptHistory.empty()) {
         cout << "No prompts have been generated yet.\n";
         return;
     }
-
     for (size_t index = 0; index < promptHistory.size(); ++index) {
-        cout << "\nPrompt " << index + 1 << ":\n";
-        cout << promptHistory[index] << "\n";
+        cout << "\nPrompt " << index + 1 << ":\n" << promptHistory[index] << "\n";
         printBorder('.');
     }
 }
@@ -258,8 +285,11 @@ void displayMainMenu() {
     cout << "2. Coding Assistant\n";
     cout << "3. Business Assistant\n";
     cout << "4. Translation Assistant\n";
-    cout << "5. Prompt History\n";
-    cout << "6. Exit\n";
+    cout << "5. Creative Writing Assistant\n";
+    cout << "6. Resume & CV Assistant\n";
+    cout << "7. Email Assistant\n";
+    cout << "8. Prompt History\n";
+    cout << "9. Exit\n";
     printBorder('-');
 }
 
@@ -269,26 +299,18 @@ int main() {
 
     while (isRunning) {
         displayMainMenu();
-        int menuChoice = getValidatedInteger("Enter your choice: ", 1, 6);
+        int choice = getValidatedInteger("Enter your choice: ", 1, 9);
 
-        switch (menuChoice) {
-            case 1:
-                studyAssistant(promptHistory);
-                break;
-            case 2:
-                codingAssistant(promptHistory);
-                break;
-            case 3:
-                businessAssistant(promptHistory);
-                break;
-            case 4:
-                translationAssistant(promptHistory);
-                break;
-            case 5:
-                viewPromptHistory(promptHistory);
-                pauseProgram();
-                break;
-            case 6:
+        switch (choice) {
+            case 1: studyAssistant(promptHistory); break;
+            case 2: codingAssistant(promptHistory); break;
+            case 3: businessAssistant(promptHistory); break;
+            case 4: translationAssistant(promptHistory); break;
+            case 5: creativeWritingAssistant(promptHistory); break;
+            case 6: resumeAssistant(promptHistory); break;
+            case 7: emailAssistant(promptHistory); break;
+            case 8: viewPromptHistory(promptHistory); pauseProgram(); break;
+            case 9:
                 printHeader("Goodbye");
                 cout << "Thank you for using " << APPLICATION_NAME << ".\n";
                 isRunning = false;
